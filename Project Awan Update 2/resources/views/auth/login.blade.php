@@ -78,6 +78,32 @@
             </div>
         </form>
 
+        <!-- Divider -->
+        <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                <div class="w-full border-t border-slate-700/50"></div>
+            </div>
+            <div class="relative flex justify-center text-xs uppercase">
+                <span class="px-3 bg-slate-900 text-slate-400">atau</span>
+            </div>
+        </div>
+
+        <!-- Google Login Button -->
+        <div class="relative">
+            <a href="{{ route('auth.google') }}"
+                class="w-full flex items-center justify-center py-2.5 px-4 border border-slate-700/60 rounded-xl bg-slate-900/40 hover:bg-slate-800/80 text-slate-200 text-sm font-semibold transition duration-150 shadow-md">
+                <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="matrix(1, 0, 0, 1, 0, 0)">
+                        <path d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.6h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.4C21.68,11.8 21.56,11.4 21.35,11.1z" fill="#4285F4" />
+                        <path d="M12,20.7c2.43,0 4.47,-0.8 5.96,-2.2l-3.3,-2.6c-0.9,0.6 -2.07,1 -3.33,1 -2.56,0 -4.73,-1.73 -5.5,-4.07H2.43v2.6C3.93,18.4 7.69,20.7 12,20.7z" fill="#34A853" />
+                        <path d="M6.5,12.83c-0.2,-0.6 -0.3,-1.2 -0.3,-1.83s0.1,-1.2 0.3,-1.83V6.57H2.43c-0.8,1.6 -1.23,3.4 -1.23,5.43s0.43,3.8 1.23,5.43L6.5,12.83z" fill="#FBBC05" />
+                        <path d="M12,6.3c1.3,0 2.47,0.45 3.4,1.3l2.5,-2.5C16.4,3.7 14.4,2.7 12,2.7c-4.31,0 -8.07,2.3 -9.57,5.3l4.07,3.13C7.27,8.03 9.44,6.3 12,6.3z" fill="#EA4335" />
+                    </g>
+                </svg>
+                Masuk dengan Google
+            </a>
+        </div>
+
         <div class="mt-6 text-center text-sm relative">
             <span class="text-slate-400">Belum punya akun?</span>
             <a href="{{ route('register') }}" class="font-semibold text-indigo-400 hover:text-indigo-300 transition duration-150">

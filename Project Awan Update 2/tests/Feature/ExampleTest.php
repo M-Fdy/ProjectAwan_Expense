@@ -57,7 +57,7 @@ class ExampleTest extends TestCase
 
         $response = $this->actingAs($user)->get('/home');
         $response->assertStatus(200);
-        $response->assertSee('Dasbor Keuangan');
+        $response->assertSee('Home Keuangan');
         $response->assertSee(gethostname()); // Validasi visual indicator di footer
     }
 
@@ -265,5 +265,31 @@ class ExampleTest extends TestCase
         $response->assertSee('Rp 1.000.000');
         $response->assertSee('Rp 400.000');
         $response->assertSee('Rp 600.000'); // Saldo bersih (1.000.000 - 400.000)
+    }
+
+    public function test_authenticated_user_can_export_csv(): void
+    {
+        $user = User::create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $incomeCat = Category::where('type', 'income')->first();
+        Income::create([
+            'user_id' => $user->id,
+            'category_id' => $incomeCat->id,
+            'amount' => 1000000,
+            'description' => 'Freelance',
+            'date' => '2026-06-04',
+        ]);
+
+        $response = $this->actingAs($user)->get('/expenses/export');
+        $response->assertStatus(200);
+        $this->assertStringContainsString('attachment; filename=laporan_keuangan_', $response->headers->get('Content-Disposition'));
+        
+        $content = $response->streamedContent();
+        $this->assertStringContainsString('Tanggal,Tipe,Kategori,Deskripsi,"Nominal (Rp)"', $content);
+        $this->assertStringContainsString('Freelance', $content);
     }
 }

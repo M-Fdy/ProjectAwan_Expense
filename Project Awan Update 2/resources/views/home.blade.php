@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dasbor Keuangan Pribadi')
+@section('title', 'Home Keuangan')
 
 @section('styles')
 <!-- Chart.js CDN -->
@@ -13,16 +13,25 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <h1 class="text-3xl font-extrabold tracking-tight text-white">
-                Dasbor Keuangan
+                Home Keuangan
             </h1>
             <p class="text-slate-400 text-sm mt-1">
                 Kelola pemasukkan dan pengeluaran Anda secara rinci dalam satu aplikasi terpadu.
             </p>
         </div>
-        <!-- Quick Stats Widget -->
-        <div class="glass p-1 px-3 rounded-xl flex items-center space-x-2 text-xs border border-slate-700/50 self-start">
-            <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
-            <span class="text-slate-300 font-mono">Server node: {{ $serverName }}</span>
+        <!-- Quick Stats Widget & Export Button -->
+        <div class="flex items-center space-x-3 self-start">
+            <a href="{{ route('expenses.export') }}" 
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-indigo-600/20 transition duration-150 text-xs flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Export Laporan CSV
+            </a>
+            <div class="glass p-2 px-3 rounded-xl flex items-center space-x-2 text-xs border border-slate-700/50">
+                <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                <span class="text-slate-300 font-mono">Server node: {{ $serverName }}</span>
+            </div>
         </div>
     </div>
 
@@ -641,7 +650,7 @@
             }
         }
 
-        // Filter data Master Array JS untuk kalkulasi ulang Dasbor & Grafik
+        // Filter data Master Array JS untuk kalkulasi ulang Ringkasan & Grafik
         const filteredData = allTransactions.filter(t => {
             if (startDate && t.date < startDate) return false;
             if (endDate && t.date > endDate) return false;
