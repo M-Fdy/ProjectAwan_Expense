@@ -267,7 +267,7 @@ class ExampleTest extends TestCase
         $response->assertSee('Rp 600.000'); // Saldo bersih (1.000.000 - 400.000)
     }
 
-    public function test_authenticated_user_can_export_csv(): void
+    public function test_authenticated_user_can_export_excel(): void
     {
         $user = User::create([
             'name' => 'John Doe',
@@ -287,9 +287,11 @@ class ExampleTest extends TestCase
         $response = $this->actingAs($user)->get('/expenses/export');
         $response->assertStatus(200);
         $this->assertStringContainsString('attachment; filename=laporan_keuangan_', $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('.xls', $response->headers->get('Content-Disposition'));
         
         $content = $response->streamedContent();
-        $this->assertStringContainsString('Tanggal,Tipe,Kategori,Deskripsi,"Nominal (Rp)"', $content);
+        $this->assertStringContainsString('Laporan Keuangan', $content);
         $this->assertStringContainsString('Freelance', $content);
+        $this->assertStringContainsString('1000000', $content);
     }
 }

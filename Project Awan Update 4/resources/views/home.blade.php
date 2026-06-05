@@ -26,7 +26,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Export Laporan CSV
+                Export Laporan Excel
             </a>
             <div class="glass p-2 px-3 rounded-xl flex items-center space-x-2 text-xs border border-slate-700/50">
                 <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
@@ -340,12 +340,12 @@
                 <table class="w-full text-left border-collapse" id="transactionsTable">
                     <thead>
                         <tr class="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                            <th class="py-3.5 px-6 font-semibold">Tanggal</th>
-                            <th class="py-3.5 px-6 font-semibold">Tipe</th>
-                            <th class="py-3.5 px-6 font-semibold">Kategori</th>
-                            <th class="py-3.5 px-6 font-semibold">Deskripsi</th>
-                            <th class="py-3.5 px-6 font-semibold text-right">Nominal</th>
-                            <th class="py-3.5 px-6 font-semibold text-center">Aksi</th>
+                            <th class="py-3.5 px-3 sm:px-6 font-semibold">Tanggal</th>
+                            <th class="py-3.5 px-3 sm:px-6 font-semibold">Tipe</th>
+                            <th class="py-3.5 px-3 sm:px-6 font-semibold">Kategori</th>
+                            <th class="py-3.5 px-3 sm:px-6 font-semibold hidden md:table-cell">Deskripsi</th>
+                            <th class="py-3.5 px-3 sm:px-6 font-semibold text-right">Nominal</th>
+                            <th class="py-3.5 px-3 sm:px-6 font-semibold text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-850">
@@ -354,21 +354,21 @@
                                 data-type="{{ $transaction->type }}"
                                 data-date="{{ $transaction->date }}">
                                 <!-- Tanggal -->
-                                <td class="py-4 px-6 text-slate-300 font-mono whitespace-nowrap">
+                                <td class="py-4 px-3 sm:px-6 text-slate-300 font-mono whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($transaction->date)->format('d/m/Y') }}
                                 </td>
                                 
                                 <!-- Tipe -->
-                                <td class="py-4 px-6 whitespace-nowrap">
+                                <td class="py-4 px-3 sm:px-6 whitespace-nowrap">
                                     @if($transaction->type === 'income')
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                                             </svg>
                                             Pemasukan
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/20">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/20">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                             </svg>
@@ -378,7 +378,7 @@
                                 </td>
                                 
                                 <!-- Kategori -->
-                                <td class="py-4 px-6 whitespace-nowrap">
+                                <td class="py-4 px-3 sm:px-6 whitespace-nowrap">
                                     @php
                                         // Dynamic styling based on category name & transaction type
                                         $catName = strtolower($transaction->category->name);
@@ -408,27 +408,36 @@
                                             }
                                         }
                                     @endphp
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {{ $badgeStyle }}">
-                                        {{ $transaction->category->name }}
-                                    </span>
+                                    <div class="flex flex-col">
+                                        <div>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium border {{ $badgeStyle }}">
+                                                {{ $transaction->category->name }}
+                                            </span>
+                                        </div>
+                                        @if($transaction->description)
+                                            <span class="text-[10px] text-slate-400 mt-1 md:hidden max-w-[80px] sm:max-w-[120px] truncate" title="{{ $transaction->description }}">
+                                                {{ $transaction->description }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 
                                 <!-- Deskripsi -->
-                                <td class="py-4 px-6 text-slate-355 max-w-xs truncate">
+                                <td class="py-4 px-3 sm:px-6 text-slate-355 max-w-xs truncate hidden md:table-cell">
                                     {{ $transaction->description ?? '-' }}
                                 </td>
                                 
                                 <!-- Nominal -->
-                                <td class="py-4 px-6 text-right font-semibold font-mono whitespace-nowrap">
+                                <td class="py-4 px-3 sm:px-6 text-right font-semibold font-mono whitespace-nowrap">
                                     @if($transaction->type === 'income')
-                                        <span class="text-emerald-400">+ Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
+                                        <span class="text-emerald-400 text-xs sm:text-sm">+ Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
                                     @else
-                                        <span class="text-rose-450">- Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
+                                        <span class="text-rose-450 text-xs sm:text-sm">- Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
                                     @endif
                                 </td>
                                 
                                 <!-- Aksi -->
-                                <td class="py-4 px-6 text-center whitespace-nowrap">
+                                <td class="py-4 px-3 sm:px-6 text-center whitespace-nowrap">
                                     <div class="flex items-center justify-center space-x-2">
                                         <!-- Edit Button -->
                                         <button type="button" 

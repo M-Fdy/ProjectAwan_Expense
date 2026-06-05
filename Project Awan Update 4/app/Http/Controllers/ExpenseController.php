@@ -100,27 +100,27 @@ class ExpenseController extends Controller
     }
 
     /**
-     * Ekspor data transaksi asli ke file CSV.
+     * Ekspor seluruh data transaksi pemasukan dan pengeluaran asli ke file Excel.
      */
-    public function exportCsv()
+    public function exportExcel()
     {
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         
         // Tarik data asli dari database
         $expenses = $user->expenses()->with('category')->get();
         $incomes = $user->incomes()->with('category')->get();
         
-        // Label tipe transaksi
+        // Tandai tipe transaksi
         $expenses->each(fn($item) => $item->type = 'Pengeluaran');
         $incomes->each(fn($item) => $item->type = 'Pemasukan');
         
-        // Gabungkan dan urutkan berdasarkan tanggal terbaru
+        // Gabungkan dan urutkan transaksi berdasarkan tanggal terbaru
         $transactions = $expenses->concat($incomes)->sortByDesc(fn($item) => $item->date . ' ' . $item->created_at);
         
-        $filename = "laporan_keuangan_" . date('Ymd_His') . ".csv";
+        $filename = "laporan_keuangan_" . date('Ymd_His') . ".xls";
         
         $headers = [
-            "Content-type"        => "text/csv; charset=UTF-8",
+            "Content-Type"        => "application/vnd.ms-excel; charset=UTF-8",
             "Content-Disposition" => "attachment; filename=$filename",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
@@ -130,23 +130,89 @@ class ExpenseController extends Controller
         $callback = function() use($transactions) {
             $file = fopen('php://output', 'w');
             
-            // Tambahkan UTF-8 BOM agar terbaca dengan benar di MS Excel Windows
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            // Output template HTML/Excel dengan meta xml agar Excel memuat gridline & formatting angka
+            $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--[if gte mso 9]>
+<xml>
+<x:ExcelWorkbook>
+<x:ExcelWorksheets>
+<x:ExcelWorksheet>
+<x:Name>Laporan Keuangan</x:Name>
+<x:WorksheetOptions>
+<x:DisplayGridlines/>
+</x:WorksheetOptions>
+</x:ExcelWorksheet>
+</x:ExcelWorksheets>
+</x:ExcelWorkbook>
+</xml>
+<![endif]-->
+<style>
+    th {
+        background-color: #4f46e5;
+        color: #ffffff;
+        font-weight: bold;
+        border: 1px solid #d1d5db;
+        padding: 8px;
+        font-family: sans-serif;
+    }
+    td {
+        border: 1px solid #e5e7eb;
+        padding: 8px;
+        font-family: sans-serif;
+    }
+    .number {
+        mso-number-format: "\#\,\#\#0";
+        text-align: right;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .pemasukan {
+        color: #10b981;
+        font-weight: bold;
+    }
+    .pengeluaran {
+        color: #f43f5e;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+<table>
+    <thead>
+        <tr>
+            <th>Tanggal</th>
+            <th>Tipe</th>
+            <th>Kategori</th>
+            <th>Deskripsi</th>
+            <th>Nominal (Rp)</th>
+        </tr>
+    </thead>
+    <tbody>';
             
-            // Kolom Header
-            fputcsv($file, ['Tanggal', 'Tipe', 'Kategori', 'Deskripsi', 'Nominal (Rp)']);
-            
-            // Isi data asli
             foreach ($transactions as $transaction) {
-                fputcsv($file, [
-                    $transaction->date,
-                    $transaction->type,
-                    $transaction->category->name,
-                    $transaction->description ?? '-',
-                    round($transaction->amount)
-                ]);
+                $typeClass = $transaction->type === 'Pemasukan' ? 'pemasukan' : 'pengeluaran';
+                $dateFormatted = \Carbon\Carbon::parse($transaction->date)->format('d/m/Y');
+                
+                $html .= '
+        <tr>
+            <td class="text-center">' . htmlspecialchars($dateFormatted) . '</td>
+            <td class="' . $typeClass . '">' . htmlspecialchars($transaction->type) . '</td>
+            <td>' . htmlspecialchars($transaction->category->name) . '</td>
+            <td>' . htmlspecialchars($transaction->description ?? '-') . '</td>
+            <td class="number">' . (int)$transaction->amount . '</td>
+        </tr>';
             }
             
+            $html .= '
+    </tbody>
+</table>
+</body>
+</html>';
+            
+            fwrite($file, $html);
             fclose($file);
         };
         

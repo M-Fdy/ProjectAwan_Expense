@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
-    Route::get('/expenses/export', [ExpenseController::class, 'exportCsv'])->name('expenses.export');
+    Route::get('/expenses/export', [ExpenseController::class, 'exportExcel'])->name('expenses.export');
     Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
     Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
